@@ -19,13 +19,25 @@
 
 	NOTE:
 		remember to change grid ID (props.list_id) if you are working with different sets of children.
-
-
-
 */
-var S = require('./Slide');
-var SlideMixin = require('./SlideMixin');
+window.ty = 'matrix3d(0,0,1.00,0,0.00,0.6,0.00,0,-1,0,0,0,0,0,0,1)';
+require('./style/TetrisGrid.scss');
+var React = require('react');
 
+// console.log(React)
+Mixin = {
+	contextTypes: {
+		animate: React.PropTypes.bool,
+		scroll: React.PropTypes.object,
+		fixed: React.PropTypes.bool,
+		diam: React.PropTypes.number,
+		vertical: React.PropTypes.bool,
+		outerWidth: React.PropTypes.number,
+		outerHeight: React.PropTypes.number,
+		w: React.PropTypes.number,
+		h: React.PropTypes.number,
+	}
+}
 
 
 
@@ -37,32 +49,215 @@ function clamp(n,min,max){
 
 
 
+
+
+/* pass -1 for w/h to set size based on amount of children and grid dimentions */
+var GridItem = React.createClass({
+	displayName: 'GridItem',
+
+	mixins: [Mixin],
+	hidden: null,
+	getDefaultProps: function getDefaultProps() {
+		this.hide_t = null;
+		return {
+			show_beta: 1,
+			render_beta: 2,
+			animate: false,
+			end: false,
+
+			w: null,
+			h: null,
+			grid_shifts: 0,
+			r: null,
+			c: null,
+
+			ease_dur: 0.4
+		};
+	},
+
+	// getInitialState: function(){
+
+	// },
+
+	checkHidden: function checkHidden() {
+		// console.log(-this.context.scroll.y);
+		// console.log(this.props.end);
+		var ch = this.context.outerHeight;
+		if (this.context.vertical) {
+			var top = (this.props.r - this.props.grid_shifts) * this.context.diam;
+			var h = this.context.diam * this.props.h;
+			var scroll = -this.context.scroll.y;
+
+			if (scroll < top + h + ch * this.props.show_beta && scroll > top - ch - ch * this.props.show_beta) return 1;
+			if (scroll < top + h + ch * this.props.render_beta && scroll > top - ch - ch * this.props.render_beta) return 0;
+		} else {
+			var left = (this.props.c - this.props.grid_shifts) * this.context.diam;
+			var w = this.context.diam * this.props.w;
+			var scroll = -this.context.scroll.x;
+			if (scroll < left + w + ch * this.props.show_beta && scroll > left - ch - ch * this.props.show_beta) return 1;
+			if (scroll < left + w + ch * this.props.render_beta && scroll > left - ch - ch * this.props.render_beta) return 0;
+		}
+
+		return -1;
+	},
+
+	// componentDidUpdate: function(props,state){
+	// 	var check = this.checkHidden();
+	// 	var hidden = check < 0;
+	// 	if(this.hidden == hidden) return
+	// 	if(check == -1){
+	// 		this.hide(true);		
+	// 	}else{
+	// 		this.show(check == 0)
+	// 	}
+	// },
+
+	hide: function hide(set) {
+
+		this.hidden = true;
+		// this.refs.item.style.visibility = 'hidden';
+		this.refs.item.style.display = 'none';
+	},
+
+	show: function show(set, delay) {
+
+		this.hidden = false;
+
+		if(this.hide_t){
+			clearTimeout(this.hide_t);
+			this.hide_t = null;
+		}
+
+		// set = true
+
+		if (set == true) {
+			// this.refs.item.style.visibility = 'visible'
+			this.refs.item.style.display = 'block';
+			this.refs.item.style.transition = '';
+			this.refs.item.style.transform = '';
+			this.hide_t = setTimeout(function () {
+				this.refs.item.style.transition = 'transform ' + this.props.ease_dur + 's cubic-bezier(.29,.3,.08,1)';
+			}.bind(this), 1);
+			return;
+		} else {
+			var x = this.props.w > this.props.h;
+
+			var t_x = 'matrix3d(0.6,0,0.00,'+(-0.001+Math.random()*0.002)+',0.00,0,1.00,-0.003,0,-1,0,0,0,0,0,1)';
+			var t_y = 'matrix3d(0,0,1,'+(-0.001+Math.random()*0.002)+',0.00,0.6,0.00,0.001,-1,0,0,0,0,0,0,1)';
+
+			this.refs.item.style.transition = '';
+			this.refs.item.style.transform = '' + (x ? t_x : t_y);
+			// this.refs.item.style.visibility = 'visible'
+			this.refs.item.style.display = 'block';
+
+			this.hide_t = setTimeout(function () {
+				this.refs.item.style.transition = 'transform ' + this.props.ease_dur + 's cubic-bezier(.29,.3,.08,1)';
+				this.refs.item.style.transform = 'matrix3d(1,0,0.00,0,0.00,1,0.00,0,0,0,1,0,0,0,0,1)';
+			}.bind(this),50);
+		}
+
+		if (this.props.onShow != null) {
+			this.props.onShow();
+		}
+	},
+
+	componentDidMount: function componentDidMount() {
+		if (this.props.animate == false) {
+			return this.show(false);
+		}
+		var check = this.checkHidden();
+		this.hidden = true;
+
+		if (this.context.fixed) {
+			return this.show(false);
+		}
+
+		if (check < 0) {
+			this.hide();
+		} else {
+			this.show(check == 0);
+		}
+
+		if(this.props.animate){
+			this.update_scroll_interval = setInterval(this.scrollUpdate, 100 + Math.random() * 300);
+		}
+	},
+
+	componentWillUnmount: function componentWillUnmount() {
+		if (this.context.animate == false) {
+			return;
+		}
+		// console.log("UNMOUNT ITEM")
+		this.hidden = true;
+		clearInterval(this.update_scroll_interval);
+	},
+
+	scrollUpdate: function scrollUpdate() {
+		var check = this.checkHidden();
+		var hidden = check < 0;
+		if (this.hidden == hidden) return;
+		if (check < 0) this.hide(true);else this.show(check == 0);
+	},
+
+	render: function render() {
+
+		if (!this.context.fixed) {
+			var left = this.props.c * this.context.diam + 'px';
+			var top = (this.props.r - this.props.grid_shifts) * this.context.diam + 'px';
+			var h = this.context.diam * this.props.h + 'px';
+			var w = this.context.diam * this.props.w + 'px';
+		} else {
+			var left = 100 / this.context.w * this.props.c + '%';
+			var top = 100 / this.context.h * this.props.r + '%';
+			var w = 100 / this.context.w * this.props.w + '%';
+			var h = 100 / this.context.h * this.props.h + '%';
+		}
+
+		var style = {
+			left: left,
+			top: top,
+			height: h,
+			width: w
+		};
+
+		return React.createElement(
+			'div',
+			{ className: '-i-grid-item-outer ' + this.props.outerClassName, onMouseEnter: this.props.onMouseEnter, onMouseLeave: this.props.onMouseLeave, ref: 'item', style: style },
+			this.props.children
+		);
+	}
+});
+
+module.exports.GridItem = GridItem;
+
+
 var Grid = React.createClass({
 	displayName: 'Grid',
 
-	// mixins: [SlideMixin],
 
 	getDefaultProps: function getDefaultProps() {
 		var defaults = {
-
+			toggle_reset: false,
+			bottom_pad: 150,
+			auto : false,
+			_id: null,
 			show_beta: 1,
 			render_beta: 2,
 			animate: true,
-
 			hard_sync: false, // hard sync checks props children against buffered children on every update (not recommended with large amounts of children elements)
 			update_offset_beta: 1,
 			max_reached: false,
-			native_scroll: false,
+			native_scroll: true,
 			max_grid_height_beta: 3,
 			pause_scroll: false,
 			fixed: false,
+			ease_dur: 0.4,
 			vertical: true,
-			ease: Power2.easeOut,
 			offset: 0, //grid buffer offset.
 			fill_up: true, //fill empty spots
 			h: 2, //width of grid
-			w: 2 };
-
+			w: 2 
+		};
 		return defaults;
 	},
 
@@ -94,39 +289,48 @@ var Grid = React.createClass({
 	},
 
 	getInitialState: function getInitialState() {
-		this.init();
+		this.init(null,true);
 		return {};
 	},
 
-	init: function init() {
+	init: function init(props,force_scroll_reset) {
+		if(this.refs && this.refs.outer){
+			this.refs.outer.scrollTop = 0
+		}
 		this.index_array = [];
 		this.max_reached = false;
 		this.grid_shifts = 0;
 		this.total_max_pos = 0;
+		this.max_pos = 1;
 		this.display_grid = [];
 		this.children = [];
 		this.grid = [];
 		this.grid_keys = []; //array of grid children keys, used to find the grid index more efficiently.
 		this.max_scroll_pos = 0; //minimum scroll position allowed.
 		this.min_scroll_pos = 0; //maximum scroll position allowed.
-		this.scroll_pos = 0; //scrol position
-		this.scroll_ppos = 0; // scroll previous position needed to check scroll
 		this.scroll_check_pos = 0;
 		this.scrolling = false;
 		this.check_end_interval = null;
 		this.last_grid_index = 0;
-		this.stage = {
-			y: 0,
-			x: 0
-		};
 
-		if (!this.index_array.length) {
-			this.initIndexArray(this.props.w, this.props.h);
+
+		if(force_scroll_reset){
+			this.stage = {
+				y: 0,
+				x: 0
+			};
+			this.scroll_pos = 0; //scroll position
+			this.scroll_ppos = 0; // scroll previous position needed to check scroll
 		}
+
+		// console.log('init index array',props && props.w,props && props.h)
+		this.initIndexArray(props && props.w || this.props.w ,props && props.h || this.props.h );
+		
 	},
 
 	/* initialize the index array with a set width and height */
 	initIndexArray: function initIndexArray(w, h) {
+
 
 		for (var r = 0; r < h; r++) {
 			var row = [];
@@ -135,6 +339,7 @@ var Grid = React.createClass({
 			}
 			this.index_array[r] = row;
 		}
+
 
 		this.last_grid_index = 0;
 		this.min_scroll_pos = 0;
@@ -154,42 +359,26 @@ var Grid = React.createClass({
 		}
 	},
 
-	/* remove grid items that from previous update at the start of each update*/
-
-	/*
- 	starts at offset and fills grid until there is no room for next consecutive child.
- 	assumes grid is free to fill.
- */
-	// fillInitialGrid: function(offset){
-	// //	console.log('fill initial',this.children.length)
-
-	// 	for(var i = offset;i<this.children.length;i++){
-	// 		var c = this.children[i]
-
-	// 		var spot = this.findFreeSpot(c.props.w,c.props.h)
-	// 		if(spot == null) return
-	// 		this.fillSpot(i,spot[0],spot[1],c.props.w,c.props.h)
-	// 		this.addToGrid(c,spot[0],spot[1],i)
-	// 	}
-	// //	console.log("done fill initial")
-	// },
-
 	findAdjacentSpot: function findAdjacentSpot() {
 		alert('not implemented');
 	},
 
-	fillUpGrid: function fillUpGrid(offset) {
-
-		//	console.log("FILL UP GRID")
-
+	fillUpGrid: function fillUpGrid(props) {
+		// console.log('fill up')
+		var offset = props.offest || 0
+		// console.log(this.children.length)
+		// console.log('FILL',offset)
 		for (var i = offset; i < this.children.length; i++) {
 			var c = this.children[i];
+
 			if (this.gridIndex(c) != -1) continue;
-			var spot = this.findFreeSpot(c.props.w, c.props.h, false);
+			// console.log(this.children);
+			var spot = this.findFreeSpot(c.props.w, c.props.h, false,props);
+			
 
 			if (spot == null) return;
-			this.fillSpot(i, spot[0], spot[1], c.props.w, c.props.h);
-			this.addToGrid(c, spot[0], spot[1], i, spot[2], spot[3]);
+			this.fillSpot(i, spot[0], spot[1], c.props.w, c.props.h,props);
+			this.addToGrid(c, spot[0], spot[1], i,props);
 		}
 	},
 
@@ -207,34 +396,34 @@ var Grid = React.createClass({
 	/* sync props children with static child buffer array*/
 	/* grid doesnt care what arrangement the prop children are in, 
  it will append to the buffer if new children are discovered and set null to buffer indecies that are not part of child props */
-	hardSyncChildren: function hardSyncChildren(new_children) {
+	// hardSyncChildren: function hardSyncChildren(new_children) {
 
-		//remove any buffer children that arent part of new children
-		for (var i = 0; i < this.children.length; i++) {
-			var c = this.children[i];
-			if (c == null) continue;
-			var found = false;
-			for (var j = 0; j < new_children.length; j++) {
-				if (c.key == new_children[j].key) {
-					found = true;
-				}
-			}
-			if (!found) this.removeChild(c);
-		}
+	// 	//remove any buffer children that arent part of new children
+	// 	for (var i = 0; i < this.children.length; i++) {
+	// 		var c = this.children[i];
+	// 		if (c == null) continue;
+	// 		var found = false;
+	// 		for (var j = 0; j < new_children.length; j++) {
+	// 			if (c.key == new_children[j].key) {
+	// 				found = true;
+	// 			}
+	// 		}
+	// 		if (!found) this.removeChild(c);
+	// 	}
 
-		//add new children that are not part of the buffer
-		for (var j = 0; j < new_children.length; j++) {
-			var n_c = new_children[j];
-			if (n_c == null) continue;
-			var found = false;
-			for (var i = 0; i < this.children.length; i++) {
-				if (this.children[i].key == n_c.key) {
-					found = true;
-				}
-			}
-			if (found == false) this.addChild(n_c);
-		}
-	},
+	// 	//add new children that are not part of the buffer
+	// 	for (var j = 0; j < new_children.length; j++) {
+	// 		var n_c = new_children[j];
+	// 		if (n_c == null) continue;
+	// 		var found = false;
+	// 		for (var i = 0; i < this.children.length; i++) {
+	// 			if (this.children[i].key == n_c.key) {
+	// 				found = true;
+	// 			}
+	// 		}
+	// 		if (found == false) this.addChild(n_c);
+	// 	}
+	// },
 
 	//remove child from buffer
 	removeChild: function removeChild(index) {
@@ -256,14 +445,15 @@ var Grid = React.createClass({
 	},
 
 	/*
- do not check children against new_children 
- NOTE:
- 	keep in mind that if prop children are shuffled or rearranged, grid WILL break.
+		do not check children against new_children 
+		NOTE:
+		keep in mind that if prop children are shuffled or rearranged, grid WILL break.
  	*/
-	easySyncChildren: function easySyncChildren(new_children) {
+	easySyncChildren: function easySyncChildren(props) {
 		//	console.log("EASEY SYNC",new_children)
 		// console.log("EASY SYNC",this.last_grid_index,new_children.length);
-		this.children = new_children.slice(this.last_grid_index, this.last_grid_index + new_children.length);
+		this.children = props.children.slice(this.last_grid_index, this.last_grid_index + props.children.length);
+		// console.log(this.children)
 	},
 
 	/* set the lowest and greatest indecies of the children */
@@ -281,11 +471,15 @@ var Grid = React.createClass({
 	},
 
 	/* add to grid */
-	addToGrid: function addToGrid(child, r, c, index) {
+	addToGrid: function addToGrid(child, r, c, index,props) {
+	
+		// console.log(child.props.w,child.props.h)
 		var n_child = React.cloneElement(child, {
-			show_beta: this.props.show_beta,
-			render_beta: this.props.render_beta,
-			ease_dur: 0.3 + Math.abs(0.2 * Math.sin(index / 5)),
+			key: child.props.key,
+			show_beta: props.show_beta,
+			render_beta: props.render_beta,
+			animate: props.animate,
+			ease_dur: props.ease_dur + Math.random()*0.3,
 			w: child.props.w,
 			h: child.props.h,
 			end: false,
@@ -345,40 +539,41 @@ var Grid = React.createClass({
 	},
 
 	/* find the lowest or highest index spot on the grid */
-	findMaxIndexSpot: function findMaxIndexSpot(w, h, reverse) {
+	// findMaxIndexSpot: function findMaxIndexSpot(w, h, reverse) {
 
-		var arr = this.index_array;
-		var spot = [];
-		var l = arr.length;
-		var lai = null; //lowest average index
+	// 	var arr = this.index_array;
+	// 	var spot = [];
+	// 	var l = arr.length;
+	// 	var lai = null; //lowest average index
 
 
-		for (var r = 0; r < l; r++) {
-			var rl = arr[r].length;
-			for (var c = 0; c < rl; c++) {
-				var index_total = -1;
-				for (var h_i = 0; h_i < h && r + h_i < l; h_i++) {
-					for (var w_i = 0; w_i < w && c + w_i < rl; w_i++) {
-						index_total += arr[r + h_i][c + w_i];
-					}
-				}
+	// 	for (var r = 0; r < l; r++) {
+	// 		var rl = arr[r].length;
+	// 		for (var c = 0; c < rl; c++) {
+	// 			var index_total = -1;
+	// 			for (var h_i = 0; h_i < h && r + h_i < l; h_i++) {
+	// 				for (var w_i = 0; w_i < w && c + w_i < rl; w_i++) {
+	// 					index_total += arr[r + h_i][c + w_i];
+	// 				}
+	// 			}
 
-				if (c + w <= rl && r + h <= l && (lai == null || (reverse ? index_total > lai : index_total < lai))) {
-					lai = index_total;
-					spot = [r, c];
-				}
-			}
-		}
+	// 			if (c + w <= rl && r + h <= l && (lai == null || (reverse ? index_total > lai : index_total < lai))) {
+	// 				lai = index_total;
+	// 				spot = [r, c];
+	// 			}
+	// 		}
+	// 	}
 
-		if (spot.length == 0) {
-			throw ' could not find lowest index spot ? ';
-		}
+	// 	if (spot.length == 0) {
+	// 		throw ' could not find lowest index spot ? ';
+	// 	}
 
-		return spot;
-	},
+	// 	return spot;
+	// },
 
 	//find and index spot from BOTTOM to TOP
-	findFreeSpot: function findFreeSpot(w, h, reverse) {
+	findFreeSpot: function findFreeSpot(w, h, reverse,props) {
+		// console.log(this.index_array[0][8])
 		// var reverse = true
 		var self = this;
 		var max_r = 0;
@@ -409,17 +604,17 @@ var Grid = React.createClass({
 				}
 			}
 
-			if (self.props.fixed) return null;
+			if (props.fixed) return null;
 
-			if (self.props.vertical) {
+			if (props.vertical) {
 				var row = [];
-				for (var c = 0; c < self.props.w; c++) {
+				for (var c = 0; c < props.w; c++) {
 					row.push(-1);
 				}
 
 				self.index_array.push(row);
 			} else {
-				for (var r = 0; r < self.props.h; r++) {
+				for (var r = 0; r < props.h; r++) {
 					col[r].push(-1);
 				}
 			}
@@ -490,7 +685,7 @@ var Grid = React.createClass({
 	// },
 
 	/* fill spot */
-	fillSpot: function fillSpot(child_i, r, c, w, h) {
+	fillSpot: function fillSpot(child_i, r, c, w, h,props) {
 		//	console.log('fill spot',r,c,w,h,'#'+child_i)
 
 
@@ -508,20 +703,6 @@ var Grid = React.createClass({
 		return true;
 	},
 
-	/* 123 */
-	// forceFill: function(props){
-	// //	console.log("FORCE FILL");
-	// 	for(var i = 0;i<this.children.length;i++){
-	// 		var c = this.children[i]
-	// 		var spot = this.findFreeSpot(c.props.w,c.props.h)
-	// 		if(spot == null) return
-	// 		this.fillSpot(i,spot[0],spot[1],c.props.w,c.props.h)
-	// 		this.addToGrid(c,spot[0],spot[1],i)
-	// 	}
-
-	// },
-
-
 	/* reset the grid, removing all state children and setting outer prop children to end their life cycle on the next update */
 	resetGrid: function resetGrid(w, h) {
 
@@ -530,56 +711,10 @@ var Grid = React.createClass({
 		for (var i = 0; i < this.grid.length; i++) {
 			this.grid[i] = React.cloneElement(this.grid[i], { end: true });
 		}
+		// this.grid = [];
 
 		this.children = [];
 	},
-
-	/*  find the lowset index spot on the grid and replace it with an incremented one from the state children (fixed grids only) */
-	// goBack: function(){
-	// 	var prev_index = this.lowest_index-1
-	// 	var c = this.children[prev_index]
-	// 	if(c == null) return //we cant go back because there are no children with the next lowest index
-
-	// 	var spot = this.findMaxIndexSpot(c.props.w,c.props.h,true)
-
-	// 	this.makeFreeSpot(spot[0],spot[1],c.props.w,c.props.h)
-	// 	this.fillSpot(next_index,spot[0],spot[1],c.props.w,c.props.h)
-	// 	this.addToGrid(c,spot[0],spot[1],prev_index)
-
-	// 	/* done */
-	// 	return
-	// },
-
-
-	/* find the highest index spot on the grid and replace it with an incremented one from the state children (fixed grids only) */
-	// goForward: function(){
-
-	// 	var next_index = this.greatest_index+1
-	// 	var c = this.children[next_index]
-	// 	if(c == null) return; //we cant go fw because there are no children with the next highest index
-
-	// 	var spot = this.findMaxIndexSpot(c.props.w,c.props.h,false)
-
-	// 	this.makeFreeSpot(spot[0],spot[1],c.props.w,c.props.h)
-	// 	this.fillSpot(next_index,spot[0],spot[1],c.props.w,c.props.h)
-	// 	this.addToGrid(c,spot[0],spot[1],next_index)
-
-	// 	/*done*/
-	// 	return
-	// },
-
-	/* check if a spot is empty */
-	// isEmpty: function(r,c,w,h){
-	// 	var col = this.index_array;
-	// 	for(var h_i = 0;h_i<h;h_i++){
-	// 		for(var w_i = 0; w_i < w; w_i ++ ){
-	// 			if(col[r+h_i][c+w_i] != -1){
-	// 				return false
-	// 			}
-	// 		}
-	// 	}
-	// 	return true
-	// },
 
 	/* child index */
 	childIndex: function childIndex(key) {
@@ -589,24 +724,9 @@ var Grid = React.createClass({
 		return -1;
 	},
 
-	// getNeighbors: function(child){
-	// 	var found = [];
-	// 	var min_r = clamp(child.r-1,0,this.index_array.length-1)
-	// 	var max_r = clamp(child.r+child.h+1,0,this.index_array.length-1)
-	// 	var min_c = child.c-1
-	// 	var max_c = child.c + child.w + 1
-
-
-	// 	for(var r = min_r;r<max_r;r++){
-	// 		for(var c = min_c;c<max_c;c++){
-	// 			if(this.index_array[r][c] != child.index)
-	// 		}
-	// 	}
-	// },
-
-
 	/* fill empty spots */
-	fillEmptySpots: function fillEmptySpots(offset) {
+	fillEmptySpots: function fillEmptySpots(props) {
+		var offset = props.offset
 		if (offset == null) throw 'cant fill empty spots with no offset';
 
 		var spots = this.findFreeSpots();
@@ -626,8 +746,8 @@ var Grid = React.createClass({
 				if (s == null) continue;
 				if (s.w == c.props.w && s.h == c.props.h) {
 					//yey we found a free spot!
-					this.fillSpot(i, s.r, s.c, s.w, s.h);
-					this.addToGrid(c, s.r, s.c, i);
+					this.fillSpot(i, s.r, s.c, s.w, s.h,props);
+					this.addToGrid(c, s.r, s.c, i,props);
 					found = true;
 				}
 			}
@@ -653,8 +773,8 @@ var Grid = React.createClass({
 				if (s == null) continue;
 				if (s.w == c.props.w && s.h == c.props.h) {
 					//yey we found a free spot!
-					this.fillSpot(i, s.r, s.c, s.w, s.h);
-					this.addToGrid(c, s.r, s.c, i);
+					this.fillSpot(i, s.r, s.c, s.w, s.h,props);
+					this.addToGrid(c, s.r, s.c, i,props);
 					found = true;
 				}
 			}
@@ -666,51 +786,72 @@ var Grid = React.createClass({
 	},
 
 	/* grid state sync has to happen before the render happens, the grid elements need to be rendered */
-	componentWillUpdate: function componentWillUpdate(props, state) {
-
-		if (!props.children) return false; //no need to update grid if no children.
-
-
-		//resync if children lengths dont match
-		if (this.children.length != props.children.length) {
-
-			props.hard_sync ? this.hardSyncChildren(props.children) : this.easySyncChildren(props.children);
-			if (props.fixed == true) {
-				this.fillUpGrid(props.offset);
-				this.fillEmptySpots(props.offset);
-			} else {
-				this.fillUpGrid(props.offset);
+	componentWillUpdate: function(props, state){
+		if(!Array.isArray(props.children)){
+			if(props.children){
+				props.children = [props.children]
+			}else{
+				props.children = []
 			}
 		}
+		
+		if (this.props._id != props._id || this.props.w != props.w){
+			this.pause_scroll = true
+			this.init(props,true);
+			this.easySyncChildren(props);
+			this.fillUpGrid(props);
+			
+				
 
-		//force hard resync if enabled. 
-		// else if(props.hard_sync){
-		// 	console.log("HARD SYNC")
-		// 	this.hardSyncChildren(props.children);
-		// }
+		}
+
+		//resync if children lengths dont match
+		else if (this.children.length < props.children.length) {
+			// console.log(props.children)
+			this.pause_scroll = true
+			this.easySyncChildren(props);
+			if (props.fixed == true) {
+				this.fillUpGrid(props);
+				this.fillEmptySpots(props);
+			} else {
+				this.fillUpGrid(props);
+			}
+		}else if (props.children.length < this.children.length){
+			this.pause_scroll = true
+			// console.log('init with new screoll')
+			this.init(props,true);
+			this.easySyncChildren(props);
+			this.fillUpGrid(props);
+		}else if(this.props.toggle_reset != props.toggle_reset){
+			this.pause_scroll = true
+			this.init(props);
+			this.easySyncChildren(props);
+			this.fillUpGrid(props);
+		}
 
 
 		//if offset changed go back or forwards.
-		if (this.props.offset != props.offset && this.props.fixed) {
-			var d = props.offset - this.props.offset;
-			if (Math.abs(d) > props.max_offset) {
-				this.resetGrid(props.w, props.h);
-				this.fillInitialGrid(props.offset);
-			} else if (d > 0) {
-				for (var i = 0; i < d; i++) {
-					this.goForward();
-				}
-			} else if (d < 0) {
-				for (var i = 0; i < d; i++) {
-					this.goBack();
-				}
-			}
-			this.fillEmptySpots(props.offset);
-		}
+		// if (this.props.offset != props.offset && this.props.fixed) {
+		// 	var d = props.offset - this.props.offset;
+		// 	if (Math.abs(d) > props.max_offset) {
+		// 		this.resetGrid(props.w, props.h);
+		// 		// this.fillInitialGrid(props.offset);
+		// 	} else if (d > 0) {
+		// 		for (var i = 0; i < d; i++) {
+		// 			this.goForward();
+		// 		}
+		// 	} else if (d < 0) {
+		// 		for (var i = 0; i < d; i++) {
+		// 			this.goBack();
+		// 		}
+		// 	}
+		// 	this.fillEmptySpots(props.offset);
+		// }
 		// this.getMinMax();
 		if (!this.props.fixed) {
 			this.display_grid = this.getScrollGrid();
 		}
+		this.pause_scroll = false
 	},
 
 	getScrollGrid: function getScrollGrid(off) {
@@ -754,14 +895,18 @@ var Grid = React.createClass({
 		}
 
 		// this.current_max = current_max;
-
-
+		// console.log(max_c.props.r * d + d * max_c.props.h);
+		this.max_pos = max_c ? (max_c.props.r * d + d) : 0
 		this.min_scroll_pos = min_c ? min_c.props.r * d - 50 : this.min_scroll_pos;
 		this.max_scroll_pos = max_c ? max_c.props.r * d + d * max_c.props.h - this.refs.outer.clientHeight : this.max_scroll_pos;
-
 		this.total_max_pos = t_max_c ? t_max_c.props.r * d + d * t_max_c.props.h - this.refs.outer.clientHeight : this.total_max_pos;
 		if (this.total_max_pos < 0) this.total_max_pos = 0;
 		if (this.max_scroll_pos < 0) this.max_scroll_pos = 0;
+
+		// if(this.props.auto){
+		// 	this.max_scroll_pos = d * max_c.props.h
+		// 	this.total_max_pos = d * max_c.props.h
+		// }
 
 		return grid;
 	},
@@ -786,6 +931,10 @@ var Grid = React.createClass({
 				e.preventDefault();
 				e.stopPropagation();
 				e.returnValue = false;
+			}else if(this.pause_scroll){
+				e.preventDefault();
+				e.stopPropagation();
+				e.returnValue = false;
 			}
 			return false;
 		}
@@ -803,6 +952,12 @@ var Grid = React.createClass({
 		if (this.scrolling == false) {
 			if (this.props.onScrollStart) this.props.onScrollStart(this.scroll_pos, r_max - this.scroll_pos);
 			this.scrolling = true;
+		}
+		if(this.pause_scroll){
+			e.preventDefault();
+			e.stopPropagation();
+			e.returnValue = false;
+			return false
 		}
 	},
 
@@ -890,16 +1045,17 @@ var Grid = React.createClass({
 
 	/* render */
 	render: function render() {
+		// console.log(this.refs.outer && this.refs.outer.clientHeight);
 		// console.log(this.props.max_reached && this.max_scroll_pos <= this.total_max_pos,this.props.max_reached,this.max_scroll_pos,this.total_max_pos)
 		// console.log('render grid count:',this.display_grid.length);
 		// console.log(this.props.fixed)
 		var inner_style, inner, outer_style, top_loader;
 
-		var load_circle_style = {
-			position: 'absolute',
-			left: '50%',
-			bottom: (this.refs.outer ? this.refs.outer.clientHeight / 4 / 2 : 0) + 'px'
-		};
+		// var load_circle_style = {
+		// 	position: 'absolute',
+		// 	left: 'calc( 50% - 5px )',
+		// 	bottom: (this.refs.outer ? this.refs.outer.clientHeight / 4 / 2 : 0) + 'px'
+		// };
 
 		//fixed grid render options
 		if (this.props.fixed) {
@@ -914,30 +1070,29 @@ var Grid = React.createClass({
 		} else {
 			if (this.props.vertical) {
 				inner_style = {
-					height: this.props.fixed ? '100%' : this.max_scroll_pos + (this.refs.outer ? this.refs.outer.clientHeight : 0) + (this.refs.outer ? this.refs.outer.clientHeight / 4 : 200) + 'px'
+					height: this.props.fixed ? '100%' : ( this.max_pos || this.refs.outer && (this.refs.outer.clientHeight / 2 - this.props.bottom_pad/2) || 0 ) + this.props.bottom_pad + 'px',
+					transform: '',
+					perspective: ''
 				};
 			}
 			var inner = React.createElement(
 				'div',
-				{ style: inner_style, ref: 'inner', className: '_intui_grid_inner' },
+				{ style: inner_style, ref: 'inner', className: '-i-grid-inner' },
 				this.display_grid,
-				React.createElement('div', { className: '_intui_loader ' + (this.props.max_reached && this.max_scroll_pos >= this.total_max_pos ? '_intui_loader_stop' : ''), style: load_circle_style })
+				React.createElement('div', { className: '-i-loader ' + (this.props.max_reached && this.max_scroll_pos >= this.total_max_pos ? '-i-loader-stop' : '')})
 			);
 		}
 
 		return React.createElement(
 			'div',
-			{ key: this.key, ref: 'outer', style: outer_style, className: '_intui_grid ' + (this.props.native_scroll ? '_intui_grid_scroll' : '') + ' ' + this.props.className },
+			{ key: this.key, ref: 'outer', style: outer_style, className: '-i-grid ' + (this.props.native_scroll ? '-i-grid-scroll' : '') + ' ' + this.props.className || this.props.c },
 			inner
 		);
 	}
 });
 
-
-
-module.exports = Grid
-
-
+module.exports.Grid = Grid
+module.exports.GridMixin = Mixin
 
 
 

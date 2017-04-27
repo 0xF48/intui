@@ -1,0 +1,15 @@
+.-i-modal-wrap{
+	height: 100%;
+	.-i-modal-canvas{
+		height: 100%;
+		position: absolute;
+		left: 0px;
+		width: 100%;
+		top: 0px;
+	}
+	.-i-modal-content{
+		z-index: 1;
+		position: relative;
+
+	}
+}

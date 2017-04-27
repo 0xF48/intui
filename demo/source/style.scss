@@ -1,0 +1,33 @@
+$root-bg: #1d2c2f;
+$sub-bg: #2C4943;
+
+$dim: 50px;
+
+@import './lib/intui/style/helpers.scss';
+$shade: 200deg;
+$b0: hsl($shade, 10%, 10%);
+$b1: hsl($shade, 20%, 15%);
+$b1a: #243035;
+$b2: hsl($shade, 30%, 30%);
+$b3: hsl($shade, 80%, 80%);
+
+
+$gain: #1294bf;
+$gain0: #1184ab;
+$loss: #FF5027;
+$error: #de3232;
+
+
+
+
+
+html{
+	background: $b1;
+}
+
+body{
+	background: $b1;
+	color: $b3;
+	text-rendering: geometricPrecision;
+	font-size: 14px;
+}
