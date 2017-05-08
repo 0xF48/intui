@@ -4,7 +4,7 @@
 {createElement,Component} = require 'react'
 el = createElement
 cn = require 'classnames'
-Slide = require './Slide.js'
+Slide = require './Slide.coffee'
 
 class SlideButton extends Component
 	

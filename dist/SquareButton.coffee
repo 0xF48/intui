@@ -10,24 +10,24 @@ class SquareButton extends Component
 		super(props)
 	render: (props,state)=>
 		if @props.inverse
-			class2 = @props.pClass
-			class1 = @props.sClass
+			class1 = @props.staticClass
+			class2 = @props.activeClass
 			if @props.active
 				pos = 0
 				offset = 0
 			else
 				pos = 1
-				offset = -5
+				offset = -@props.offset
 
 		else
-			class1 = @props.pClass
-			class2 = @props.sClass
+			class2 = @props.staticClass
+			class1 = @props.activeClass
 			if @props.active
 				pos = 1
 				offset = 0
 			else
 				pos = 0
-				offset = 5
+				offset = @props.offset
 
 		
 
@@ -48,5 +48,7 @@ class SquareButton extends Component
 				i: @props.i
 				className: cn 'btn',class1
 
+SquareButton.defaultProps=
+	offset: 5
 
 module.exports = SquareButton

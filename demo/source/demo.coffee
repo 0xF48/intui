@@ -5,7 +5,9 @@ stateHandle = require './lib/state-handle.js'
 cn = require 'classnames'
 require 'preact/devtools'
 
-
+Slide = require '../../dist/Slide.coffee'
+Grid = require '../../dist/TetrisGrid.js'
+SquareButton = require '../../dist/SquareButton.coffee'
 
 # global variables
 window.g =
@@ -18,6 +20,7 @@ window.g =
 	loss_c: '#FF5027'
 	slide_duration: 400
 	mouse: [0,0]
+	
 
 document.addEventListener 'mousemove', (e)->
 	g.mouse[0] = e.clientX
@@ -27,20 +30,70 @@ document.addEventListener 'mousemove', (e)->
 
 
 
+class ElementsPanel extends Component
+	render: (props,state)->
 
+		# types of elements
+		elements = [
+
+		]
+
+
+		options = [
+			h SquareButton,
+				className: 'btn'
+				activeClass: 'active'
+				width: g.dim
+				active: false
+				vertical: yes
+				inverse: yes
+				onClick: ()->
+					actions.resetGrid
+				i: 'refresh'		
+		]
+
+		h Slide,
+			className: 'elements-panel'
+			vertical: yes
+			beta: 100
+			h Slide,
+				vertical: no
+				height: g.dim
+				options
+			# grid elements picker
+			# h Grid,
+			# 	width: 4
+			# 	beta: 100
+			# 	elements
 
 class View extends Component
 	render: (props,state)->
-		
+		grid_items = []
+		h Slide,
+			beta: 100
+			slide: yes
+			pos: @props.show_grid && 1 || 0
+			h Slide,
+				width: g.dim*6
+				h ElementsPanel, @props
+			h Slide,
+				beta: 100
 
 
 
 
 
 
+
+actions = 
+	resetGrid: ->
+		state.set 
+			grid_items: []
 
 
 state = 
+	show_grid: no
+	grid_items: []
 	page: 0
 
 window.state = new stateHandle(View,document.body,state)
