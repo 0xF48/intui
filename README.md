@@ -1,3 +1,5 @@
 # intui
 ----
-react ui component library for web based apps.
+react ui component library for web based apps. 
+
+development in progress
