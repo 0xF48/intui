@@ -1,16 +1,20 @@
-@import './helpers';
+@import '../../style/helpers';
 
 .-i-btn{
 	cursor: pointer;
 	// background: #5C618C;
 	width: 100%;
+	position: relative;
 	// border-radius: 4px;
 
+	.label{
+		padding-left: 10px;
+	}
 
 
 
 	i{
-		font-size: 22px;
+		font-size: 24px;
 	}
 
 	&.disabled{

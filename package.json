@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/arxii/intui/issues"
+    "url": "https://github.com/arxii/truck-game/issues"
   },
   "author": {
     "name": "arxii"
@@ -37,7 +37,7 @@
     "lodash": "^4.17.4",
     "yargs": "^7.1.0"
   },
-  "homepage": "https://github.com/arxii/intui#readme",
+  "homepage": "https://github.com/arxii/truck-game#readme",
   "keywords": [
     "react",
     "ui"
@@ -46,7 +46,7 @@
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arxii/intui.git"
+    "url": "git+https://github.com/arxii/truck-game.git"
   },
   "version": "0.0.1"
 }

@@ -1,8 +1,7 @@
 
 # Input Text
 Input = require './Input.coffee'
-{createElement,Component} = require 'react'
-el = createElement
+{h,Component} = require 'preact'
 cn = require 'classnames'
 
 class InputText extends Component
@@ -16,20 +15,20 @@ class InputText extends Component
 		@setState
 			focus: yes
 		@_input.focus()
+
+	onInput: (e)=>
+		@props.onInput(e)
 	onBlur: ()=>
 		if !@state.focus then return false
 		@setState
 			focus: no
 		@_input.blur()
 	onKey: (e)=>
+		console.log 'TEST'
 		if e.keyCode == 13
 			@props.onEnter && @props.onEnter(e)
 		@props.onKeyDown && @props.onKeyDown(e)
-	onChange: (e)=>
-		@setState
-			initial_value: !@props.locked && null
-			value: e.target.value
-		@props.onChange && @props.onChange(e)
+
 	componentWillUpdate: (props,state)=>
 		if @props.value != props.value
 			@setState
@@ -43,29 +42,25 @@ class InputText extends Component
 		if @props.barColor
 			style = 
 				'border-color':@props.barColor
-
-		el Input,
-			onFocus: @onFocus
-			onBlur: @onBlur
-			disabled: @props.disabled
-			# hideLabel: @props.hideLabel
-			label: @props.label
-			className: cn @props.className,@state.focus && 'focus',(@state.focus || @state.value) && 'has-data',@props.icon_label && '-i-icon-label'
-		,el 'input', 
+		props = Object.assign({},@props,{
 			ref: (e)=>
 				@_input = e
-			name: @props.name
 			onKeyDown: @onKey
-			value: @state.initial_value || @state.value 
-			type: @props.type || 'text'
 			onFocus: @onFocus
-			onChange: @onChange
 			onBlur: @onBlur
-			disabled: @props.disabled
+			value: @props.value
+			type: @props.type || 'text'
 			style: style
 			className: '-i-input-text'
-		
-			# placeholder: !@state.focus && @props.label
+		})
+		h Input,
+			disabled: @props.disabled
+			label: @props.label
+			onFocus: @onFocus
+			onClick: @onFocus
+			icon: @props.icon
+			className: cn @props.className,@state.focus && 'focus'||null,(@state.focus || @state.value) && 'has-data'||null,@props.icon_labh && '-i-icon-label'||null
+			h 'input', props
 
 
 module.exports = InputText

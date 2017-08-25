@@ -41,7 +41,8 @@ var Slide = createClass({
 			height: null, //height override
 			width: null, //width override
 			center: false,
-			auto: false
+			auto: false,
+			reverse: false
 		};
 	},
 
@@ -110,11 +111,11 @@ var Slide = createClass({
 	//get the calculated outer height and width of the slide.
 	getOuterHW: function() {
 
-		var w =  (!this.context.vertical && this.props.size) || this.props.width
-		var h =  (this.context.vertical && this.props.size) || this.props.height
+		var w =  (!this.props.vertical && this.props.size) || this.props.width
+		var h =  (this.props.vertical && this.props.size) || this.props.height
 
-		var ph = this.context.vertical && this.props.auto ? 'auto' : typeof h == 'number' ? (h) + 'px' : (h);
-		var pw = !this.context.vertical && this.props.auto ? 'auto' : typeof w == 'number' ? (w) + 'px' : (w);
+		var ph = this.props.vertical && this.props.auto ? 'auto' : typeof h == 'number' ? (h) + 'px' : (h);
+		var pw = !this.props.vertical && this.props.auto ? 'auto' : typeof w == 'number' ? (w) + 'px' : (w);
 
 		if (this.context.vertical) {
 			pw = pw || '100%';
@@ -145,7 +146,9 @@ var Slide = createClass({
 
 	//check to see if child is a valid intui slide.
 	isValidChild: function(child) {
+
 		if (child == null) return false;
+		if (child.nodeName.displayName == 'Slide') return true;
 		if (child.attributes && child.attributes['_intui_slide']) return true;
 		if (child.type == null) return false;
 		if (child.type.contextTypes == null) return false;
@@ -264,6 +267,9 @@ var Slide = createClass({
 	//get x and y coordinates of child index.
 
 	getIndexXY: function(index) {
+		if(!this.props.children){
+			throw new Error('getIndexXY, slide has no children')
+		}
 		if(!this.refs.outer){
 			return {x:0,y:0}
 		}
@@ -281,11 +287,10 @@ var Slide = createClass({
 		
 	
 		var cc = null;
-		
+		// log(this.props.children)
 		for (var i = 0, j = 0; i < this.props.children.length; i++) {
-
-			// if (!this.isValidElement(this.refs.inner.children[i])) continue;
 			cc = this.refs.inner.children[i];
+			if (!this.isValidElement(cc)) continue;
 			i_w += cc.clientWidth
 			i_h += cc.clientHeight
 			if (j == index) break;
@@ -293,7 +298,7 @@ var Slide = createClass({
 		}
 
 		if (cc == null){
-			throw new Error('no valid children')
+			throw new Error('getIndexXY no valid children')
 		}
 
 		var max_y = Math.abs(i_h - o_h);
@@ -483,6 +488,7 @@ var Slide = createClass({
 	},
 
 	hideNonVisible: function(x, y) {
+		return
 
 
 		if (!this.props.slide) return false;
@@ -513,6 +519,7 @@ var Slide = createClass({
 	},
 
 	showNonVisible: function(x, y) {
+		return 
 		// y += (this.props.index_offset) || 0
 		// x += (this.props.index_offset) || 0
 		// console.log(this.props.index_offset)
@@ -526,6 +533,9 @@ var Slide = createClass({
 			if (!this.isValidChild(c)) continue;
 
 			var cc = this.refs.inner.children[i];
+			if(!cc){
+				continue
+			}
 			if (this.props.vertical) {
 				// if(this.props.index_offset){
 				// 	console.log(cc.offsetTop,cc.clientHeight,y)
@@ -617,14 +627,20 @@ var Slide = createClass({
 		if(this.props.slide == true){
 			window.addEventListener ('resize',this.resize.bind(this))
 		}
-		
-
-		//REMOVE
+				//REMOVE
 		if (this.props.pos != null && this.props.slide) {
 			this.setIndex()
 		}
 
 	},
+
+
+	onKeyDown: function(e){
+		if (e.which == 13 && this.props.onEnter){
+			this.props.onEnter()
+		}
+	},
+
 
 	comopnentWillUnmount: function(){
 		window.removeEventListener ('resize',this.resize.bind(this))
@@ -679,23 +695,28 @@ var Slide = createClass({
 		if (dynamic) {
 			outer_hw_style = _extends(this.getOuterHW(), this.props.style);
 			inner_hw_style = this.getInnerHW();
-			innerClass = ' -i-slide-inner ' + (this.props.vertical ? ' -i-slide-vertical ' : ' ') + (this.props.c || this.props.innerClassName || this.props.className || '') + (this.props.center ? ' -i-slide-center' : '');
+			innerClass = ' -i-slide-inner ' + (this.props.vertical ? ' -i-slide-vertical ' : ' ') + (this.props.c || this.props.innerClassName || this.props.className || '') + (this.props.center ? ' -i-slide-center' : '')+ ' ' + (this.props.reverse && '-i-slide-reverse');
 			inner = createElement(
 				'div',
 				{ className: innerClass, style: inner_hw_style, ref: 'inner' },
 				inner_children
 			);
 			outerClass = ' -i-slide-outer ' + (this.props.oc || this.props.outerClassName || '') + (this.props.height != null || this.props.width != null ? ' -i-slide-fixed' : '');
+			if(this.props.scroll){
+				outerClass += ' -i-slide-scroll'
+			}
 		} else {
 			outer_hw_style = _extends(this.getOuterHW(), this.props.style);
-
 			inner = this.props.children;
-			staticClass = ' -i-slide-static' + (this.props.center ? ' -i-slide-center' : '') + (this.props.vertical ? ' -i-slide-vertical ' : ' ') + (this.props.height != null || this.props.width != null ? ' -i-slide-fixed ' : ' ') + (this.props.c || this.props.innerClassName || this.props.className || '');
+			staticClass = ' -i-slide-static' + (this.props.center ? ' -i-slide-center' : '') + (this.props.vertical ? ' -i-slide-vertical ' : ' ') + (this.props.height != null || this.props.width != null ? ' -i-slide-fixed ' : ' ') + (this.props.c || this.props.innerClassName || this.props.className || '') + ' ' + (this.props.reverse && '-i-slide-reverse');
+			if(this.props.scroll){
+				staticClass += ' -i-slide-scroll'
+			}
 		}
 
 		return createElement(
 			'div',
-			_extends({}, this.pass_props, { id: this.props.id, className: dynamic ? outerClass : staticClass, style: outer_hw_style, ref: 'outer' }),
+			_extends({onKeyDown:this.onKeyDown.bind(this)}, this.pass_props, { id: this.props.id, className: dynamic ? outerClass : staticClass, style: outer_hw_style, ref: 'outer' }),
 			inner,
 			dynamic && outer_children || null
 

@@ -1,12 +1,12 @@
 require './style/Modal.scss'
 {h,Component} = require 'preact'
-Overlay = require './Overlay.js'
+Overlay = require './Overlay.coffee'
 cn = require 'classnames'
 
 class Modal extends Component
 	constructor: (props)->
 		super(props)
-		@mouse = props.mouse || [0,0]
+		@mouse = props.mouse || [window.innerWidth/2,window.innerHeight/2]
 		@stage =
 			x: 0
 			y: 0
@@ -30,6 +30,28 @@ class Modal extends Component
 		ctx.closePath()
 		ctx.fill()
 
+	update: ()=>
+
+		rect = @_content.getBoundingClientRect()
+		# console.log rect
+		@rect = rect
+		ctx = @_canvas.getContext('2d')
+		@_canvas.width = @_overlay.clientWidth
+		@_canvas.height = @_overlay.clientHeight
+		ctx.fillStyle = @props.backColor
+
+		@pos = [
+			{ x:rect.left, y:rect.top }
+			{ x:rect.left + rect.width , y:rect.top }
+			{ x:rect.left + rect.width, y:rect.top + rect.height }
+			{ x:rect.left, y:rect.top + rect.height }
+		]
+
+
+
+		@draw_rect(ctx)
+
+
 
 
 	show: ()=>
@@ -37,10 +59,11 @@ class Modal extends Component
 
 		# console.log @root
 		rect = @_content.getBoundingClientRect()
+		# console.log rect
 		@rect = rect
 		ctx = @_canvas.getContext('2d')
-		@_canvas.width = @_overlay.refs.overlay.clientWidth
-		@_canvas.height = @_overlay.refs.overlay.clientHeight
+		@_canvas.width = @_overlay._overlay.clientWidth
+		@_canvas.height = @_overlay._overlay.clientHeight
 		ctx.fillStyle = @props.backColor
 
 		@perim = [
@@ -52,14 +75,8 @@ class Modal extends Component
 
 		r = @state.start_radius
 
-		log @props.backColor
-
 		x = @mouse[0]
 		y = @mouse[1]
-
-		
-		# x = Math.random()* @_canvas.width
-		# y = Math.random() * @_canvas.height
 
 		@perim_start = [
 			{x: x, y: y }
@@ -86,11 +103,16 @@ class Modal extends Component
 
 	componentDidUpdate:(props,state)->
 		if @props.show == true && @props.show != props.show
-			@show()
+			setTimeout @show,0
+	
 	componentDidMount: (props,state)->
 		if @props.show == true
-			@show()
-			
+			setTimeout @show,0
+			# @show()
+		window.addEventListener 'resize',@update
+	
+	componentWillUnmount: ()->
+		window.removeEventListener 'resize',@update
 	
 	render: =>
 		h Overlay,
@@ -99,12 +121,23 @@ class Modal extends Component
 			show: @props.show
 			ref: (el)=>
 				@_overlay = el
-			# ref: @props.canvas
+			
 			h 'canvas',
 				className: '-i-modal-canvas'
 				ref: (el)=>
 					@_canvas = el 
-				# ref: 'canvas'
+			
+			h 'div',
+				className: '-i-modal-close'
+				onClick: (e)=>
+					e.stopPropagation()
+					e.preventDefault()
+					@props.onClick()
+					return false
+				h 'i',
+					className: 'material-icons'
+					'close'
+			
 			h 'div',
 				onClick: (e)->
 					e.stopPropagation()

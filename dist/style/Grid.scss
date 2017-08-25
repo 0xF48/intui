@@ -3,9 +3,9 @@
 .-i-grid{
 	-webkit-overflow-scrolling: touch;
 	transform: translateZ(0);
-	overflow: hidden;
 	position: relative;
 	width: 100%;
+	overflow: scroll;
 	height: 100%;
 	.-i-grid-item-outer{
 		&::before {
@@ -40,10 +40,13 @@
 	.-i-loader{
 		position: absolute;
 		left: calc( 50% - 5px );
-		bottom: 80px;
+		bottom: 25px;
 	}
 }
 
-.-i-grid-scroll{
-	overflow: scroll;
+.-i-grid-fixed{
+	height: auto;
+	overflow: visible;
 }
+
+

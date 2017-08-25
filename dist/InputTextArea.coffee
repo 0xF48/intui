@@ -1,8 +1,7 @@
 require './style/Input.scss';
 #Input base class
 
-{createElement,Component} = require 'react'
-el = createElement
+{h,Component} = require 'preact'
 cn = require 'classnames'
 
 class InputTextArea extends Component
@@ -12,7 +11,7 @@ class InputTextArea extends Component
 			initial_value: props.value
 			value: props.value
 	onClick: =>
-		@base.querySelector('textarea').focus()
+		@_text_area.focus()
 
 	onFocus: =>
 		if @state.focus
@@ -28,24 +27,27 @@ class InputTextArea extends Component
 			focus: no
 
 	resize: =>
-		text = @base.querySelector('textarea')
 		setTimeout ()=>
-			text.style.height = 'auto';
-			text.style.height = text.scrollHeight+'px';
+			@_text_area.style.height = 'auto';
+			@_text_area.style.height = @_text_area.scrollHeight+'px';
 		,0
 
-	onChange: =>
-		@resize()
-		@props.onChange && @props.onChange()
+	onInput: (e)=>
+		@resize(e)
+		@state.value = e.value
+		@props.onInput && @props.onInput(e)
 	componentDidMount: =>
 		@resize()
 	render: ->
 		if @props.label
-			label = el 'span',className:'label',@props.label
-		area = el 'textarea',
+			label = h 'span',className:'label',@props.label
+		area = h 'textarea',
 			onBlur: @onBlur
+			value: @props.value
 			onFocus: @onFocus
-			onChange: @onChange
+			onInput: @onInput
+			ref: (e)=>
+				@_text_area = e
 			# onCut: @onChange
 			# onPaste: @onChange
 			# onDrop: @onChange
@@ -53,16 +55,15 @@ class InputTextArea extends Component
 
 		,@props.value		
 
-		bar = el 'div',className:'textarea-bar'
-		el 'div',
+		bar = h 'div',className:'textarea-bar'
+		h 'div',
 			onClick: @onClick
 			# onFocus: @onFocus
 			# onBlur: @onBlur
-			className: cn '-i-input',@state.focus && 'focus','textarea',@props.className,@props.disabled && 'disabled'
+			className: cn '-i-input',@state.focus && 'focus'||'','textarea',@props.className,@props.disabled && 'disabled'||''
 		,
 			bar
 			label
 			area
-
 
 module.exports = InputTextArea

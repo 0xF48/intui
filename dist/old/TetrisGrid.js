@@ -238,7 +238,7 @@ var Grid = React.createClass({
 	getDefaultProps: function getDefaultProps() {
 		var defaults = {
 			toggle_reset: false,
-			bottom_pad: 150,
+			bottom_pad: 50,
 			auto : false,
 			_id: null,
 			show_beta: 1,
@@ -251,6 +251,7 @@ var Grid = React.createClass({
 			max_grid_height_beta: 3,
 			pause_scroll: false,
 			fixed: false,
+			show_loader: true,
 			ease_dur: 0.4,
 			vertical: true,
 			offset: 0, //grid buffer offset.
@@ -355,7 +356,7 @@ var Grid = React.createClass({
 		if (this.props.fixed) {
 			return null;
 		} else {
-			return this.refs.outer.clientWidth / this.props.w;
+			return this.refs.inner.clientWidth / this.props.w;
 		}
 	},
 
@@ -806,7 +807,15 @@ var Grid = React.createClass({
 		}
 
 		//resync if children lengths dont match
-		else if (this.children.length < props.children.length) {
+		if(this.state.toggle_reset == true){
+			this.state.toggle_reset = false
+			console.log('RESET GRID')
+			this.pause_scroll = true
+			this.init(props,true);
+			this.easySyncChildren(props);
+			this.fillUpGrid(props);
+		}else if (this.children.length < props.children.length) {
+			console.log('LENGTH SMALLER')
 			// console.log(props.children)
 			this.pause_scroll = true
 			this.easySyncChildren(props);
@@ -820,11 +829,6 @@ var Grid = React.createClass({
 			this.pause_scroll = true
 			// console.log('init with new screoll')
 			this.init(props,true);
-			this.easySyncChildren(props);
-			this.fillUpGrid(props);
-		}else if(this.props.toggle_reset != props.toggle_reset){
-			this.pause_scroll = true
-			this.init(props);
 			this.easySyncChildren(props);
 			this.fillUpGrid(props);
 		}
@@ -896,7 +900,7 @@ var Grid = React.createClass({
 
 		// this.current_max = current_max;
 		// console.log(max_c.props.r * d + d * max_c.props.h);
-		this.max_pos = max_c ? (max_c.props.r * d + d) : 0
+		this.max_pos = max_c ? (max_c.props.r * d + d * max_c.props.h) : 0
 		this.min_scroll_pos = min_c ? min_c.props.r * d - 50 : this.min_scroll_pos;
 		this.max_scroll_pos = max_c ? max_c.props.r * d + d * max_c.props.h - this.refs.outer.clientHeight : this.max_scroll_pos;
 		this.total_max_pos = t_max_c ? t_max_c.props.r * d + d * t_max_c.props.h - this.refs.outer.clientHeight : this.total_max_pos;
@@ -991,6 +995,12 @@ var Grid = React.createClass({
 		this.forceUpdate();
 	},
 
+	componentWillReceiveProps(nextProps) {
+		if(nextProps.toggle_reset){
+			this.state.toggle_reset = true
+		}	
+	},
+
 	componentWillUnmount: function componentWillUnmount() {
 
 		this.refs.outer.removeEventListener('mousewheel', this.onMouseWheel);
@@ -1070,22 +1080,23 @@ var Grid = React.createClass({
 		} else {
 			if (this.props.vertical) {
 				inner_style = {
-					height: this.props.fixed ? '100%' : ( this.max_pos || this.refs.outer && (this.refs.outer.clientHeight / 2 - this.props.bottom_pad/2) || 0 ) + this.props.bottom_pad + 'px',
+					height: this.props.fixed ? '100%' : ( (this.max_pos + (this.props.show_loader && this.props.bottom_pad || 0) ) + 'px'),
 					transform: '',
 					perspective: ''
 				};
 			}
 			var inner = React.createElement(
 				'div',
-				{ style: inner_style, ref: 'inner', className: '-i-grid-inner' },
+				{ style: inner_style, ref: 'inner', className: '-i-grid-inner '+this.props.innerClass },
 				this.display_grid,
-				React.createElement('div', { className: '-i-loader ' + (this.props.max_reached && this.max_scroll_pos >= this.total_max_pos ? '-i-loader-stop' : '')})
+				this.props.show_loader && React.createElement('div', { className: '-i-loader ' + (this.props.max_reached && this.max_scroll_pos >= this.total_max_pos ? '-i-loader-stop' : '')})
 			);
 		}
 
 		return React.createElement(
 			'div',
 			{ key: this.key, ref: 'outer', style: outer_style, className: '-i-grid ' + (this.props.native_scroll ? '-i-grid-scroll' : '') + ' ' + this.props.className || this.props.c },
+			this.props.pre,
 			inner
 		);
 	}
