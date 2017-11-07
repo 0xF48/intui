@@ -1,5 +1,5 @@
 # intui
 ----
-react ui component library for web based apps. 
 
-development in progress
+an amazing collection of preact ui components for web based applications.
+visit http://intui.lerp.io to view the demo and documentation page along with code examples.

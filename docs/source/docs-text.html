@@ -1,0 +1,191 @@
+<h2>Slide<i class = "label material-icons">code</i></h2>
+<div class = "pad-0-20">
+<p>
+A slide component helps layout the UI in a systematic and organized way. This component enables the UI to incrementaly hide or show components using a recursive sliding technique, in turn enabling the ability to methodologically design interfaces which allow users to quickly navigate through complex workflow patterns. The principle is simple, a wrapper component with some css and javascript for a flex-box based div that can be nested within itself while also being slideable, e.g for revealing and hiding different parts of the ui. A slide can be split into any amounts of "slides", each slides area is controlled by the parent and <span class = 'label'>beta</span>along with manual constraints.
+
+<br/>
+<br/>
+Application components with their respective css are nested inside each slide, the slides themselves should not be touched with css or any exterior javascript.
+<br/>
+<br/>
+Hover over some of the slide components on the right to see the effect. Each one of those elements is a slide component, either as a parent for nested one of a child. each child contains its own card element.
+<br/>
+<!-- <pre><code class = 'msg light-grey coffeescript'> -->
+</p>
+
+<div class = 'title'>snippet</div>
+<pre><code class = 'msg light-grey coffeescript'>
+require "intui/Slide"
+h Slide,
+	vert: yes #make it vertical!
+	slide: yes #
+	h Slide,
+		class: 'my-class'
+</code></pre>
+<br/>
+<div class = 'props'>
+	<div class = 'title'>props</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>vert</span><span class = 'prop-tag grey'>vertical</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>flex/split direction vertical/horizontal.</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>beta</span><span class = 'prop-type'>float</span><span class = 'prop-desc'>beta variable that controls width/height based on parent props.vert</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>slide</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>slides through children, if disabled will return a simplified wrapper</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>pos</span><span class = 'prop-type'>int</span><span class = 'prop-desc'>position of the slide, ignored if <span class = 'prop-tag'>slide</span> is false</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>auto</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>auto height/width based on content</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>animate</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>use transition animations</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>ease</span><span class = 'prop-type'>string</span><span class = 'prop-desc'>CSS slide easing 'cubic-bezier(0.25, 0.34, 0, 1)'</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>ease_dur</span><span class = 'prop-type'>float</span><span class = 'prop-desc'>slide easing duration in ms</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>w</span><span class = 'prop-tag grey'>width</span><span class = 'prop-type'>float</span><span class = 'prop-desc'>width override in pixels</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>h</span><span class = 'prop-tag grey'>height</span><span class = 'prop-type'>float</span><span class = 'prop-desc'>height override in pixels</span>
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>offset</span><span class = 'prop-type'>float</span><span class = 'prop-desc'>offset size in pixels</span>
+	</div>
+	<div class = 'prop'>
+	<span class = 'prop-tag'>offset_beta</span><span class = 'prop-type'>float</span><span class = 'prop-desc'>offset size in beta</span>
+	</div>
+
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>posOffset</span><span class = 'prop-tag grey'>index_offset</span><span class = 'prop-type'>float</span><span class = 'prop-desc'><span class = 'prop-tag'>pos</span>offset in pixels</span>
+	</div>
+	<div class = 'prop'>
+	<span class = 'prop-tag'>posOffsetBeta</span><span class = 'prop-tag grey'>index_offset_beta</span><span class = 'prop-type'>float</span><span class = 'prop-desc'><span class = 'prop-tag'>pos</span>offset in beta</span>
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>className</span><span class = 'prop-tag'>class</span><span class = 'prop-type'>string</span><span class = 'prop-desc'>css class for outer div</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>innerClassName</span><span class = 'prop-tag'>iclass</span><span class = 'prop-type'>string</span><span class = 'prop-desc'>css class for inner div</span>
+	</div>
+
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>square</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>set width or height equal to parent height or width based on parent split direction</span>
+	</div>
+	<div class = 'prop'>
+	<span class = 'prop-tag'>center</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>css flex center</span>
+	</div>
+	<div class = 'prop'>
+	<span class = 'prop-tag'>inverse</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>css flex direction inverse</span>
+	</div>
+	<div class = 'prop'>
+	<span class = 'prop-tag'>scroll</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>css scroll overflow</span>
+	</div>
+	<br/>
+	<br/>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Grid<i class = "label material-icons">code</i></h2>
+<span class = "label red">unstable</span>
+<div class = "pad-0-20">
+
+<p>
+One interesting way to represent an information flow is a grid, similar to tetris. Components have a specific height and width, which can be manually 
+</p>
+<br/>
+<pre class = 'ui message'>
+<code class = 'msg light-grey coffeescript'>
+{Grid,GridItem} = require "intui/Grid"
+h Grid,
+	className: 'grid-container'
+	size: 4
+	@items
+</code>
+</pre>
+<div class = 'props'>
+	<div class = 'title'>props</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>fixed</span><span class = 'prop-type'>bool</span>fixed grids are not scrollable. When there is no more space left, any new items added to array will replace oldest dispalyed items, this type of grid is handy for displaying live feeds, although you can also unshift items in scrollable grids.
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>vert</span><span class = 'prop-tag grey'>vertical</span><span class = 'prop-type'>bool</span><span class = 'prop-desc'>when a grid is not fixed, we can set the scroll direction</span>
+	</div>
+	<div class = 'prop'>
+	<span class = 'prop-tag'>className</span><span class = 'prop-type'>string</span><span class = 'prop-desc'>the grid container class</span>
+	</div>
+	
+	<div class = 'prop'>
+	<span class = 'prop-tag'>size</span><span class = 'prop-type'>int</span><span class = 'prop-desc'>An integer representing how many units the grid is across. set this based on how you want to organize your items and to what resolution. keep in mind that items with more variant unit height and widths can create empty spaces. Higher size also leads to longer processing times. sometimes its good idea to set size as a multiple of 2 for both grid and items.</span>
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>length</span><span class = 'prop-type'>int</span><span class = 'prop-desc'>An integer representing how many units the grid is in length. This variable is ignored for non fixed grids!</span>
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>bufferOffsetUnits</span><span class = 'prop-type'>int</span>The buffer units from start of visible grid items to end, the only grid items that are rendered are the ones that are visible in the container. This property manages how far from the edges of the container the units get rendered.
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>animationOffsetUnitsBeta</span><span class = 'prop-type'>float</span>rendered grid items are not nessesarily visible. Their visibility and animations are managed with this prop. beta is the % of individual unit size. 1.5 = 150% of 1 unit.
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>freeSpot</span><span class = 'prop-type'>function</span>For fixed grids, sometimes you want to free up units removing stale items in a specific pattern that matches your business logic, use this function to override the default freeSpot method
+	</div>
+
+	<div class = 'prop'>
+	<span class = 'prop-tag'>onUnitMouseEnter</span><span class = 'prop-type'>function</span>When mouse enters a unit, unit r and c is passed to this function.
+	</div>
+
+<!-- 	<div class = 'prop'>
+	<span class = 'prop-tag'>onUnitMouseLeave</span><span class = 'prop-type'>function</span>When mouse enters a unit, unit r and c is passed to this function.
+	</div> -->
+
+</div>
+</div>

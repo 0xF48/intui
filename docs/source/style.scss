@@ -1,0 +1,239 @@
+$root-bg: #1d2c2f;
+$sub-bg: #2C4943;
+$font-size: 15px;
+$dim: 50px;
+
+@import '../../lib/style/helpers.scss';
+
+$b1: #F8F8F8;
+$b2: darken($b1,10%);
+$d1: #2A2A2A;
+$d2: lighten($d1,20%);
+
+
+*{
+	box-sizing: border-box;
+}
+
+
+.demo-container{
+	width: 90%;
+	height: 300px;
+	margin: 20px;
+	user-select: none;
+}
+
+
+// messages / labels / buttons
+.msg{
+	// border-radius: 2px;
+	padding: 5px ;
+}
+
+
+
+
+
+.light-blue{
+	background: #DCF7FF;
+	color: #66838C;
+	border: 1px solid #A0BAC2;
+}
+
+
+.divider{
+	margin: 20px 0px;
+	border-bottom: 6px solid #E6E6E6;
+}
+
+
+.label{
+	font-size: 14px;
+	cursor: pointer;
+	font-weight: 500;
+	color: #ffffff;
+	padding: 3px 5px;
+	border-radius: 4px;
+	background: #4a4a4a;
+	font-weight: bold;
+	margin: 0px 5px;
+}
+
+
+
+
+//tags
+body{
+	height: 100vh;
+	background: white;
+	font-size: $font-size;
+	// @extend .-i-scroll;
+}
+
+pre{
+	margin: 10px 0px;
+}
+span{
+	font-size: $font-size;
+}
+
+p{
+    font-family: Roboto;
+    line-height: 26px;
+    font-size: $font-size;
+    margin: 20px 0px;
+}
+
+
+
+code{
+	tab-size: 30px;
+}
+
+
+
+h2{
+	font-family: Roboto;
+	background: #2a2a2a;
+	color: #ffffff;
+	padding: 10px;
+	/* padding-top: 30px; */
+	margin-top: 0px;
+}
+
+
+
+
+// layout components
+.docs-header{
+	background: lightsalmon;
+	height: 50vh;
+	.header{
+		height: 100%;
+	}
+	.title{
+		font-family: Merienda;
+		font-color: $d1;
+		font-size: 60px;
+		text-align: center;
+	}
+}
+
+.docs-body{
+	height: auto !important;
+}
+.docs-demo{
+	padding-top: 60px;
+	color: $b1;
+	background: $d1;
+	align-items: center;
+	padding-bottom: 60px;
+	height: 60vh;
+
+}
+.docs-text{
+	color: $d1;
+	text-rendering: geometricPrecision;
+	font-size: 14px;
+}
+
+
+.title{
+	text-transform: uppercase;
+	font-size: 12px;
+	opacity: 0.7;
+}
+
+.prop{
+	font-family: Roboto;
+	padding: 5px;
+	margin-left: -5px;
+	line-height: 25px;
+	color: black;
+	font-size: 15px;
+	span{
+		margin: 0px 5px;
+	}
+	&:nth-child(odd){
+		background: #f7f7f7;
+	}
+	.prop-tag:first-child{
+		margin-left: 0px;
+	}
+	.prop-tag{
+		@extend .label;
+		&.grey{
+			background: grey;
+		}
+	}
+
+	.prop-type{
+		color: #717171;
+		background: #e4e4e4;
+		@extend .label;
+
+	}
+	.prop-desc{
+		line-height: 25px;
+		color: black;
+	}
+
+}
+
+
+
+
+//demos
+.card{
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	padding: 10px;
+	span{
+		font-family: monospace;
+	}
+}
+.card > i{
+	font-size: 40px;
+}
+
+.grid-outer{
+	padding: 2px;
+	
+}
+.grid-item{
+	padding: 4px;
+}
+
+.grid-container{
+	padding: 8px 8px;
+	
+	background: #f1f1f1;
+}
+
+
+
+.red{
+	background: #A4705E;
+	color: white;
+}
+
+.green{
+	background: #008109;
+	color: white;
+}
+
+
+.black{
+	background: $d1;
+	color: white;
+}
+
+.light-grey{
+	background: #f7f7f7;
+	color: #5d5d5d;
+
+}

@@ -1,0 +1,43 @@
+
+
+@mixin center {
+	align-items : center;
+	display   : flex;
+	align-content : center;
+	justify-content: center;  
+}
+
+@mixin vert{
+	flex-direction: column;
+}
+
+.full-w{
+	width: 100%;
+}
+
+.hidden{
+	display: none;
+}
+
+.center{
+	@include center;
+}
+
+// .-i-scroll{
+// 	&::-webkit-scrollbar-track
+// 	{
+	
+// 		background-color: #EEEEEE;
+// 	}
+
+// 	&::-webkit-scrollbar
+// 	{
+// 		width: 12px;
+// 		background-color: #F5F5F5;
+// 	}
+
+// 	&::-webkit-scrollbar-thumb
+// 	{
+// 		background-color: #c7c7c7;
+// 	}
+// }
