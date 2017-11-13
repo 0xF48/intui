@@ -12,7 +12,8 @@
     ]
   },
   "scripts": {
-    "start": "coffee server.coffee"
+    "start": "webpack-dev-server --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
   },
   "description:": "react ui component library for web based apps",
   "devDependencies": {
@@ -51,6 +52,8 @@
   "version": "0.0.1",
   "dependencies": {
     "highlight.js": "^9.12.0",
-    "preact-compat": "^3.17.0"
+    "preact-compat": "^3.17.0",
+    "uglifyjs-webpack-plugin": "^1.0.1",
+    "webpack-merge": "^4.1.1"
   }
 }

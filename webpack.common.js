@@ -1,12 +1,8 @@
 var webpack = require("webpack");
 var path = require('path')
-const ENV = process.env.NODE_ENV || 'development';
-// console.log('env: ',ENV);
 
-var cfg = {
-
+module.exports = {
 	devtool: 'source-map',
-
 	module: {
 		loaders: [
 			{ test: /\.json$/, loader: 'json-loader'},
@@ -17,11 +13,9 @@ var cfg = {
 			{test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,loader: 'url-loader',options: {limit: 10000}}
 		]
 	},
-
 	entry: {
 		main: path.resolve(__dirname,"docs/source/main.coffee"),
 	},
-
 	resolve: {
 		"alias": {
 			"react" : "preact-compat",
@@ -30,22 +24,9 @@ var cfg = {
 			"intui": "./dist",
 		}
 	},
-
 	output: {
-		path: path.resolve(__dirname,'docs/static'),
-		publicPath: path.resolve(__dirname,'docs/static'),
+		path: path.resolve(__dirname,'docs'),
+		publicPath: path.resolve(__dirname,'docs'),
 		filename: "[name].bundle.js"
-	},
-	devServer: {
-		// host : '192.168.1.6',
-		port: 1338,
-		host: '192.168.1.4',
-		publicPath: '/',
-		contentBase: path.resolve(__dirname,'docs/static')
 	}
-
 }
-
-
-
-module.exports = cfg;
